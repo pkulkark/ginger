@@ -22,6 +22,9 @@ from wok.control.base import Collection, Resource
 
 
 class FileSystems(Collection):
+    """
+    Collections representing the filesystems on the system
+    """
     def __init__(self, model):
         super(FileSystems, self).__init__(model)
         self.role_key = 'host'
@@ -30,12 +33,14 @@ class FileSystems(Collection):
 
 
 class FileSystem(Resource):
+    """
+    Resource representing a single file system
+    """
     def __init__(self, model, ident):
         super(FileSystem, self).__init__(model, ident)
         self.role_key = 'host'
         self.admin_methods = ['GET', 'POST', 'DELETE']
         self.uri_fmt = "/filesystems/%s"
-        # self.umount = self.generate_action_handler('umount')
         self.format = self.generate_action_handler_task('format', ['disk'])
 
     @property
