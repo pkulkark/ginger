@@ -21,7 +21,7 @@ import json
 import os
 
 from controls import Backup, Capabilities, Firmware, Network, PowerProfiles
-from controls import SanAdapters, Sensors, Sep, Users
+from controls import SanAdapters, Sensors, Sep, Users, FileSystems
 from i18n import messages
 from wok.config import PluginPaths
 from wok.root import WokRoot
@@ -38,6 +38,7 @@ class Ginger(WokRoot):
         self.powerprofiles = PowerProfiles(self.model)
         self.sensors = Sensors(self.model)
         self.users = Users(self.model)
+        self.filesystems = FileSystems(self.model)
         self.network = Network(self.model)
         self.api_schema = json.load(open(os.path.join(os.path.dirname(
                                     os.path.abspath(__file__)), 'API.json')))

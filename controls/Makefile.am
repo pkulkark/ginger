@@ -29,6 +29,7 @@ controls_PYTHON = \
 	sanadapters.py \
 	sensors.py \
 	users.py \
+	filesystems.py \
 	$(NULL)
 
 controlsdir = $(pythondir)/wok/plugins/ginger/controls

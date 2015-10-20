@@ -27,6 +27,8 @@ from powermanagement import PowerProfilesModel, PowerProfileModel
 from sanadapters import SanAdapterModel, SanAdaptersModel
 from sensors import SensorsModel
 from users import UsersModel, UserModel
+from filesystem import FileSystemsModel, FileSystemModel
+
 
 from wok import config
 from wok.basemodel import BaseModel
@@ -47,6 +49,8 @@ class GingerModel(BaseModel):
         user = UserModel()
         interfaces = InterfacesModel()
         interface = InterfaceModel()
+        filesystems = FileSystemsModel()
+        filesystem = FileSystemModel()
         network = NetworkModel()
         archives = ArchivesModel(objstore=self._objstore)
         archive = ArchiveModel(objstore=self._objstore)
@@ -60,13 +64,14 @@ class GingerModel(BaseModel):
         subscriber = SubscribersModel()
 
         features = [firmware, backup, network, powerprofiles, san_adapters,
-                    sensors, ibm_sep, users]
+                    sensors, ibm_sep, users, filesystems]
         capabilities = CapabilitiesModel(features)
 
         sub_models = [
             backup, archives, archive,
             firmware,
             interfaces, interface,
+            filesystems, filesystem,
             network,
             powerprofiles, powerprofile,
             users, user,

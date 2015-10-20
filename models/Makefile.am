@@ -31,6 +31,8 @@ models_PYTHON = \
 	sanadapters.py \
 	sensors.py \
 	users.py \
+	filesystem.py \
+	fs_utils.py \
 	$(NULL)
 
 modelsdir = $(pythondir)/wok/plugins/ginger/models

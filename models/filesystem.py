@@ -19,10 +19,13 @@
 
 from wok.exception import OperationFailed, NotFoundError
 import libvirt
-from controls import fs_utils
+import fs_utils
 
 
 class FileSystemsModel(object):
+    """
+    Model class for listing filesystems (df -hT) and mounting a filesystem
+    """
     def __init__(self, **kargs):
         pass
 
@@ -30,7 +33,10 @@ class FileSystemsModel(object):
         try:
             blk_dev = params['blk_dev']
             mount_point = params['mount_point']
+            persistent = params['persistent']
             fs_utils._mount_a_blk_device(blk_dev, mount_point)
+            if persistent:
+                fs_utils.make_persist(blk_dev, mount_point)
         except libvirt.libvirtError as e:
             raise OperationFailed("KCHFS00000",
                                   {'mount point': mount_point, 'err': e.get_error_message()})
@@ -40,8 +46,6 @@ class FileSystemsModel(object):
         try:
             fs_names = fs_utils._get_fs_names()
 
-        # for idx, val in enumerate(fs_names):
-        #     fs_names[idx] = fs_names[idx][1:]
         except libvirt.libvirtError as e:
             raise OperationFailed("KCHFS00001",
                                   {'err': e.get_error_message()})
@@ -51,6 +55,9 @@ class FileSystemsModel(object):
 
 
 class FileSystemModel(object):
+    """
+    Model for viewing and unmounting the filesystem
+    """
     def __init__(self, **kargs):
         pass
 
@@ -63,9 +70,9 @@ class FileSystemModel(object):
             raise NotFoundError("KCHFS00002", {'name': name})
 
     def delete(self, name):
-        print "inside delete method"
         try:
             fs_utils._umount_partition(name)
+            fs_utils.remove_persist(name)
         except libvirt.libvirtError as e:
             raise OperationFailed("KCHFS00003",
                                   {'err': e.get_error_message()})

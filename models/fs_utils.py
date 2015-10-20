@@ -110,21 +110,23 @@ def _get_swapdev_list_parser(output):
     return output_list
 
 def _create_file(size, file_loc):
-    """
-
-    :param file_loc:
-    :return:
-    """
-    crt_out = subprocess.Popen(["dd", "if=/dev/zero", "of="+file_loc, "bs="+size, "count=1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = crt_out.communicate()
-    if crt_out.returncode != 0:
-        raise OperationFailed("KCHDISKS0001E", {'err': err})
-    return
+   """
+   This method creates a flat file
+   :param size: size of the flat file to be created
+   :param file_loc: location of the flat file
+   :return:
+   """
+   crt_out = subprocess.Popen(["dd", "if=/dev/zero", "of=" + file_loc, "bs=" + size, "count=1"], stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+   out, err = crt_out.communicate()
+   if crt_out.returncode != 0:
+       raise OperationFailed("KCHDISKS0001E", {'err': err})
+   return
 
 def _make_swap(file_loc):
     """
-
-    :param file_loc:
+    This method configures the given file/device as a swap file/device
+    :param file_loc: path of the file/device
     :return:
     """
     os.chown(file_loc,0,0)
@@ -137,8 +139,8 @@ def _make_swap(file_loc):
 
 def _activate_swap(file_loc):
     """
-
-    :param file_loc:
+    This method activates the swap file/device
+    :param file_loc: path of the file/device
     :return:
     """
     swp_out = subprocess.Popen(["swapon", file_loc], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -149,23 +151,22 @@ def _activate_swap(file_loc):
 
 def _makefs(fstype, name):
     """
-
-    :param fstype:
+    This method formats the device with the specified file system type
+    :param fstype: type of the filesystem
+    :param name: path of the device/partition to be formatted
     :return:
     """
     fs_out = subprocess.Popen(["mkfs", "-t", fstype ,"-F", name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = fs_out.communicate()
-    print out
-    print err
     if fs_out.returncode != 0:
         raise OperationFailed("KCHDISKS0001E", {'err': err})
     return
 
 def _parse_swapon_output(output):
     """
-
+    This method parses the output of 'grep -w devname /proc/swaps'
     :param output: output of 'grep -w devname /proc/swaps' command
-    :return:
+    :return: dictionary containing swap device info
     """
     output_dict = {}
     output_list = output.split()
@@ -179,8 +180,8 @@ def _parse_swapon_output(output):
 
 def _get_swap_output(device_name):
     """
-
-    :param device_name:
+    This method executes the command 'grep -w devname /proc/swaps'
+    :param device_name: name of the swap device
     :return:
     """
     swap_out = subprocess.Popen(
@@ -194,8 +195,8 @@ def _get_swap_output(device_name):
 
 def _swapoff_device(device_name):
     """
-
-    :param device_name:
+    This method removes swap devices
+    :param device_name: path of the swap device to be removed
     :return:
     """
     swapoff_out = subprocess.Popen(
@@ -209,8 +210,8 @@ def _swapoff_device(device_name):
 
 def _is_mntd(partition_name):
     """
-
-    :param mnt_out:
+    This method checks if the partition is mounted
+    :param partition_name: name of the partition
     :return:
     """
     is_mntd_out = subprocess.Popen(
@@ -261,3 +262,33 @@ def _umount_partition(mnt_pt):
         raise OperationFailed("KCHDISKS00035", {'err': std_err})
     return
 
+
+def make_persist(dev, mntpt):
+    """
+    This method persists the mounted filesystem by making an entry in fstab
+    :param dev: path of the device to be mounted
+    :param mntpt: mount point
+    :return:
+    """
+    fo = open("/etc/fstab", "a+")
+    fo.write(dev + " " + mntpt + " " + "defaults 1 2")
+    fo.close()
+
+def remove_persist(mntpt):
+    """
+    This method removes the fstab entry
+    :param mntpt: mount point
+    :return:
+    """
+    fo = open("/etc/fstab", "r")
+    lines = fo.readlines()
+    output = []
+    fo.close()
+    fo = open("/etc/fstab", "w")
+    for line in lines:
+        if mntpt in line:
+            continue
+        else:
+            output.append(line)
+    fo.writelines(output)
+    fo.close()
